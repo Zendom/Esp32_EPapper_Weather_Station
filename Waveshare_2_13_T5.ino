@@ -11,20 +11,6 @@
 #include <U8g2_for_Adafruit_GFX.h>
 #include "forecast_record.h"
 #include "lang.h"                   // Localisation (English)
-#include "BluetoothSerial.h"
-
-// Check if Bluetooth configs are enabled
-#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
-#error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
-#endif
-
-// Bluetooth Serial object
-BluetoothSerial SerialBT;
-
-static const int buttonPinBluetooth = 34;
-
-char* ssid = "";
-char* password = "";
 
 //#define DRAW_GRID 1   //Help debug layout changes
 #define SCREEN_WIDTH   212
@@ -85,23 +71,7 @@ int  SleepTime     = 23; // Sleep after (23+1) 00:00 to save battery power
 void setup() {
   StartTime = millis();
   Serial.begin(115200);
-   SerialBT.begin("ESP32Weather"); //Bluetooth device name
-  Serial.println(F("The device started, now you can pair it with bluetooth!"));
  
-  pinMode(buttonPinBluetooth, INPUT);
-  if (digitalRead(buttonPinBluetooth)) {
-    Serial.println(F("Bluetooth try to connect"));
-    if (SerialBT.available()) {
-      char incomingChar = SerialBT.read();
-      if (incomingChar != '\n') {
-        ssid += char(incomingChar);
-        Serial.println(ssid);
-      } else {
-        password += char(incomingChar);
-        Serial.println(password);
-        SerialBT.available() = false;
-      }
-    } else {
       if (StartWiFi() == WL_CONNECTED && SetupTime() == true) {
         //if ((CurrentHour >= WakeupTime && CurrentHour <= SleepTime)) {
         Serial.println(F("Initialising Display"));
@@ -122,8 +92,6 @@ void setup() {
           display.display(false); // Full screen update mode
         }
       }
-    }
-  }
   BeginSleep();
 }
 //#########################################################################################
